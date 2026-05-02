@@ -483,18 +483,13 @@ class DBSiteStore(common.SiteStore):
             else:
                 raise StopIteration
 
+        _VERSIONS_CONDITION_KEYS = frozenset({
+            'key', 'type', 'author', 'ip', 'comment', 'created', 'bot', 'revision',
+        })
         for c in query.conditions:
             key, value = c.key, c.value
-            assert key in [
-                'key',
-                'type',
-                'author',
-                'ip',
-                'comment',
-                'created',
-                'bot',
-                'revision',
-            ]
+            if key not in _VERSIONS_CONDITION_KEYS:
+                raise ValueError(f"Invalid versions condition key: {key!r}")
 
             try:
                 if key == 'key':
