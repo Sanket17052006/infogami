@@ -115,15 +115,13 @@ def jsonify(f):
             )
 
             common.record_exception()
-            # call web.internalerror to send email when web.internalerror is set to web.emailerrors
-            process_exception(
-                common.InfobaseException(error="internal_error", message=str(e))
-            )
 
             if web.ctx.get('infobase_localmode'):
                 raise common.InfobaseException(message=str(e))
             else:
-                process_exception(e)
+                process_exception(
+                    common.InfobaseException(error="internal_error", message="internal error")
+                )
 
         # use default=str to deal with TypeError: datetime is not JSON serializable
         result = d.json_data if isinstance(d, JSON) else json.dumps(d, default=str)
