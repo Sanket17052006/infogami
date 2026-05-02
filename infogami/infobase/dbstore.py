@@ -534,6 +534,9 @@ class DBSiteStore(common.SiteStore):
         if sort and sort.startswith('-'):
             sort = sort[1:] + ' desc'
 
+        sort_col = sort.split()[0] if sort else 'created'
+        if not sort_col.isalpha():
+            raise ValueError(f"Invalid sort column: {sort_col!r}")
         sort = 'transaction.' + sort
 
         t = self.db.transaction()
