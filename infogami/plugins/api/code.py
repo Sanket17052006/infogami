@@ -3,6 +3,7 @@ Infogami read/write API.
 """
 
 import json
+import re
 from functools import wraps
 
 import web
@@ -11,6 +12,8 @@ import infogami
 from infogami.infobase import client
 from infogami.utils import delegate, features
 from infogami.utils.view import safeint
+
+_VALID_JSONP_CALLBACK = re.compile(r'^[a-zA-Z_$][a-zA-Z0-9_$.]*$')
 
 hooks = {}
 
@@ -150,7 +153,7 @@ def jsonapi(f):
 
         i = web.input(_method='GET', callback=None)
 
-        if i.callback:
+        if i.callback and _VALID_JSONP_CALLBACK.match(i.callback):
             out = f'{i.callback}({out});'
 
         if web.input(_method="GET", text="false").text.lower() == "true":
