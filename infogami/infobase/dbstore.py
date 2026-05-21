@@ -483,18 +483,13 @@ class DBSiteStore(common.SiteStore):
             else:
                 raise StopIteration
 
+        _VERSIONS_CONDITION_KEYS = frozenset({
+            'key', 'type', 'author', 'ip', 'comment', 'created', 'bot', 'revision',
+        })
         for c in query.conditions:
             key, value = c.key, c.value
-            assert key in [
-                'key',
-                'type',
-                'author',
-                'ip',
-                'comment',
-                'created',
-                'bot',
-                'revision',
-            ]
+            if key not in _VERSIONS_CONDITION_KEYS:
+                raise ValueError(f"Invalid versions condition key: {key!r}")
 
             try:
                 if key == 'key':
@@ -534,6 +529,9 @@ class DBSiteStore(common.SiteStore):
         if sort and sort.startswith('-'):
             sort = sort[1:] + ' desc'
 
+        sort_col = sort.split()[0] if sort else 'created'
+        if not sort_col.isalpha():
+            raise ValueError(f"Invalid sort column: {sort_col!r}")
         sort = 'transaction.' + sort
 
         t = self.db.transaction()
